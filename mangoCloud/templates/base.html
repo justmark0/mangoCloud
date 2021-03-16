@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+    {% if title is None %}
+        mangoCloud
+    {% else %}
+        {{ title }}
+    {% endif %}
+        </title>
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>
