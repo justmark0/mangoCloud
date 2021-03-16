@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import test_view
+from .views import *
 
 urlpatterns = [
-    path('get', test_view),
+    path('getfile/', get_file),
 ]

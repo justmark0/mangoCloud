@@ -1,9 +1,10 @@
-from pathlib import Path
+from pathlib import Path, PurePath
 from dotenv import load_dotenv
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+FILES_FOLDER = BASE_DIR.parent / 'files'
 load_dotenv()
 
 # Quick-start development settings - unsuitable for production
