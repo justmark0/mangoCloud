@@ -2,7 +2,7 @@ from django.db import models
 
 
 class File(models.Model):
-    file_id = models.CharField(max_length=512, unique=True)     # File is unique name of file
+    file_id = models.CharField(max_length=256, unique=True)     # File is unique name of file
     # user_id = models.ForeignKey("User")                       # User_id that uploaded this file
     is_shared = models.BooleanField(default=False)              # Is user sharing this file to other users. Can be
                                                 # extended by adding table of sharing and storing share_id
