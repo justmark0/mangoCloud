@@ -18,7 +18,7 @@ DEBUG = os.getenv("MODE") == 'DEBUG'
 
 ALLOWED_HOSTS = ['*']
 
-
+AUTH_USER_MODEL = 'backend.User'
 # Application definition
 
 INSTALLED_APPS = [

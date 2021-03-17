@@ -3,11 +3,8 @@
 {% block content %}
     <h1>Home page</h1>
 
-<form action="." method="post">
-    {{ form.as_p }}
-
-    <input type="file" name="file">
-    <input type="submit" value="Submit">
-</form>
-
+{{message}}
+<br>
+{{ user.token }}<br>
+{{user.username}}<br>
 {% endblock %}

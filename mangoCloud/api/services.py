@@ -18,13 +18,18 @@ def absolute_path_from_filename(name: str):
     return str(path)
 
 
-def create_file_id():
+def get_unique_id(classname=File):
     while True:
         a = str(randint(0, int(1e9))) + str(randint(0, int(1e9)))
         h = sha256(a.encode()).hexdigest()
-        file = get_or_none(File, file_id=h)
-        if file is None:
-            return a
+        if classname == File:
+            entry = get_or_none(classname, file_id=h)
+        elif str(classname) == "<class 'backend.models.User'>":
+            entry = get_or_none(classname, token=h)
+        else:
+            return
+        if entry is None:
+            return h
 
 
 def save_file_in_folder(name: str, file):

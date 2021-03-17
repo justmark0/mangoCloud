@@ -37,7 +37,7 @@ def upload_file(request: HttpRequest):
             # user = get_or_none(User, token=form.cleaned_data['token']) # TODO check users token
             # if user is None:
             #     return HttpResponse("Error. Update token")
-            file_entry = File.objects.create(file_id=create_file_id(), file_name=form.cleaned_data['file'])
+            file_entry = File.objects.create(file_id=get_unique_id(), file_name=form.cleaned_data['file'])
             save_file_in_folder(name=file_entry.file_id, file=request.FILES['file'])
             response = {"file_id": file_entry.file_id}
             return HttpResponse(json.dumps(response))
