@@ -28,8 +28,7 @@ def get_file(request: HttpRequest):
 @csrf_exempt
 def upload_file(request: HttpRequest):
     if request.method == "GET":
-        return render(request, 'index.html', {'form': UploadFile()})
-        # return HttpResponse("Use method POST. token (max symbols 512) and file")
+        return HttpResponse("Use method POST. token (max symbols 512) and file")
     if request.method == "POST":
         form = UploadFile(request.POST, request.FILES)
         print(form.errors)
