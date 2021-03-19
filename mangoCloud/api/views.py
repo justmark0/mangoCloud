@@ -5,7 +5,6 @@ from backend.models import User  # It is right import
 from django.contrib.auth import authenticate
 from .models import File
 from .services import *
-from .forms import *
 import json
 
 
@@ -64,7 +63,7 @@ def get_token(request: HttpRequest):
                 return json_error("This user already exists")
             user.get_new_token()
             user.save()
-            return JsonResponse({"token": user.token}, safe=False)
+            return JsonResponse({"token": user.token})
         return json_error("Wrong format")
     return HttpResponse("API supports only GET and POST methods")
 
@@ -83,6 +82,23 @@ def reg_view(request: HttpRequest):
             instance.get_new_token()
             instance.set_password(data['password'])
             instance.save()
-            return JsonResponse({"token": instance.token}, safe=False)
+            return JsonResponse({"token": instance.token})
         return HttpResponse("Username (less that 150) and password (less than 50) should be not none")
     return HttpResponse("Site supprots only GET and POST methods")
+
+
+@csrf_exempt
+def get_list_of_files_in_folder(request: HttpRequest):
+    if request.method == "GET":
+        return HttpResponse("Use post method and specify your username and password")
+    if request.method == "POST":
+        data = json.loads(request.body.decode())
+        if validate_json(data, username=True, password=True):
+            user = get_or_none(User, token=request.POST['token'])  # Validating token
+            if user is None:
+                return HttpResponse("Error. Update token")
+
+                # is not finished
+
+
+

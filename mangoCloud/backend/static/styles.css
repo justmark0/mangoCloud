@@ -93,20 +93,18 @@ div.search{
     height: 35px;
     border-radius: 14px;
 }
-.button{
+.search_button{
     position: absolute;
     text-align: center;
     right: 0;
     padding: 5px 10px 3px 10px;
     color: white;
     box-shadow: 0 0 6px rgb(0 0 0 / 40%);
-    background: linear-gradient(-90deg, #FFD86E, #E57474);
-    border-radius: 14px;
-    height: 35px;
-}
-.search_button{
     width: 66px;
+    background: linear-gradient(-90deg, #FFD86E, #E57474);
+    /* margin: 5px; */
     height: 35px;
+    border-radius: 14px;
 }
 input.search{
     position: absolute;
@@ -130,61 +128,4 @@ img.search{
     margin-left:5px;
     width: 25px;
     height: 25px;
-}
-.filter{
-    display: none;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    background: #777;
-    opacity: 50%;
-}
-.popup{
-    display: none;
-    position: absolute;
-    left: 50%;
-    top: 10%;
-    bottom: 40%;
-}
-.popup_windou{
-    position: relative;
-    background: #fff;
-    /* height: 400px; */
-    width: 400px;
-    opacity: 1;
-    border-radius: 14px;
-    left: -50%;
-}
-.login_block{
-    margin: 20px 20px 10px 20px;
-}
-.login_input{
-    color: #f4ac71;
-    outline: none;
-    width: 100%;
-    border: none;
-    border-bottom: inset;
-    border-bottom-color: #F4AC71;
-}
-.login_input:focus{
-    border-bottom-color: #E88173;
-}
-.login_text{
-    margin-left: 15px;
-    color: #E88173;
-}
-.login_title{
-    background: linear-gradient(-90deg, #FFD86E, #E57474);
-    border-radius: 14px;
-    text-align: center;
-    font-size: 35px;
-    font-weight: 700;
-    color: #fff;
-}
-.login_button{
-    margin-right: 40px;
-    margin-top: 20px;
-    width: 100px;
-    font-size: 16px;
-    font-weight: 700;
 }
