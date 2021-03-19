@@ -1,8 +1,9 @@
 from django.http import JsonResponse
+from .models import File, Access
 from django.conf import settings
 from random import randint
 from hashlib import sha256
-from .models import File, Access
+from .models import File
 import json
 
 
@@ -67,7 +68,7 @@ def validate_json(data, token=False, file_id=False, file_name=False, username=Fa
 
 
 def json_error(message):
-    return JsonResponse({"Error": message})
+    return JsonResponse({"Error": message}, safe=False)
 
 
 def has_access(user, file):

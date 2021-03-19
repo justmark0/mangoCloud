@@ -35,8 +35,11 @@ def reg_view(request: HttpRequest):
     if request.method == "POST":
         form = UserForm(request.POST)
         print(form.errors)
+        print(request.body)
         if form.is_valid():
             instance = form.instance
+            print(instance)
+
             instance.get_new_token()
             instance.set_password(instance.password)
             instance.save()

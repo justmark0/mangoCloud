@@ -15,6 +15,7 @@ SECRET_KEY = os.getenv("SECRET_KEY") or 'secretkey9324762130*&^_(@#^$!_@@#+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("MODE") == 'DEBUG'
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

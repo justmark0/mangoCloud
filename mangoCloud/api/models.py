@@ -14,7 +14,6 @@ class File(models.Model):
             models.Index(fields=['file_id']),
         ]
 
-
 class Access(models.Model):
     file_id = models.ForeignKey("File", on_delete=models.CASCADE)
     owner_id = models.ForeignKey("backend.User", on_delete=models.CASCADE, related_name="owner")
