@@ -67,4 +67,4 @@ def validate_json(data, token=False, file_id=False, file_name=False, username=Fa
 
 
 def json_error(message):
-    return JsonResponse({"Error": message})
+    return JsonResponse({"Error": message}, safe=False)
