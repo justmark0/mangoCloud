@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from api.services import get_unique_id  # It is right import
 from django.db import models
+from random import randint
+from hashlib import sha256
 
 
 class User(AbstractUser):
@@ -15,3 +16,19 @@ class User(AbstractUser):
         indexes = [
             models.Index(fields=['username']),
         ]
+
+
+def get_or_none(classname, **kwargs):
+    try:
+        return classname.objects.get(**kwargs)
+    except classname.DoesNotExist:
+        return None
+
+
+def get_unique_id(classname):
+    while True:
+        a = str(randint(0, int(1e9))) + str(randint(0, int(1e9)))
+        h = sha256(a.encode()).hexdigest()
+        entry = get_or_none(classname, token=h)
+        if entry is None:
+            return h
