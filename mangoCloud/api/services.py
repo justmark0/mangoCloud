@@ -1,7 +1,9 @@
+from django.http import JsonResponse
 from django.conf import settings
 from random import randint
 from hashlib import sha256
 from .models import File
+import json
 
 
 def get_or_none(classname, **kwargs):
@@ -62,3 +64,7 @@ def validate_json(data, token=False, file_id=False, file_name=False, username=Fa
         if not field_json_is_valid(data, 'password', 50):
             return False
     return True
+
+
+def json_error(message):
+    return JsonResponse({"Error": message})

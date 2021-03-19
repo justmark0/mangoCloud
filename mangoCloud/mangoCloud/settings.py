@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'backend',
+    # 'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -41,6 +42,26 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# MIDDLEWARE_CLASSES = (
+#     'corsheaders.middleware.CorsMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+# )
+# #
+# CORS_ALLOW_ALL_ORIGINS = True  # If this is used then CORS_ORIGIN_WHITELIST will not have any effect
+# CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_ORIGIN_WHITELIST = [
+#     'http://127.0.0.1:8000',
+# ] # If this is used, then not need to use CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_REGEX_WHITELIST = [
+#     'http://127.0.0.1:8000',
+# ]
+#
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000"
+# ]
 
 ROOT_URLCONF = 'mangoCloud.urls'
 
