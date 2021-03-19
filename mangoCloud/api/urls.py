@@ -2,7 +2,8 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('getfile/', get_file),
-    path('uploadfile/', upload_file),
-    path('gettoken/', get_token),
+    path('get_file', get_file),
+    path('upload_file', upload_file),
+    path('get_token', get_token),
+    path('reg', reg_view),
 ]

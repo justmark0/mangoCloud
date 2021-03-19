@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from api.services import get_unique_id
+from api.services import get_unique_id  # It is right import
 from django.db import models
 
 

@@ -36,3 +36,29 @@ def save_file_in_folder(name: str, file):
     with open(str(settings.FILES_FOLDER / name), 'wb+') as destination:
         for chunk in file.chunks():
             destination.write(chunk)
+
+
+def field_json_is_valid(data, field, max_length=256):
+    if field in data.keys():
+        if 0 < len(data[field]) <= max_length:
+            return True
+    return False
+
+
+def validate_json(data, token=False, file_id=False, file_name=False, username=False, password=False):
+    if token is True:
+        if not field_json_is_valid(data, 'token', 256):
+            return False
+    if file_id is True:
+        if not field_json_is_valid(data, 'file_id', 256):
+            return False
+    if file_name is True:
+        if not field_json_is_valid(data, 'file_name', 512):
+            return False
+    if username is True:
+        if not field_json_is_valid(data, 'username', 150):
+            return False
+    if password is True:
+        if not field_json_is_valid(data, 'password', 50):
+            return False
+    return True

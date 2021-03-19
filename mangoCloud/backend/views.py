@@ -7,9 +7,9 @@ from .models import User
 
 def index_view(request: HttpRequest):
     if request.user.is_authenticated:
-        return render(request, 'index.html', {"message": "auth", "user": request.user})
+        return render(request, 'index.html')
     else:
-        return render(request, 'index.html', {"message": 'Not auth'})
+        return render(request, 'index.html')
 
 
 def login_view(request: HttpRequest):
