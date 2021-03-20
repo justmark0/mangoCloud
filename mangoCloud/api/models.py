@@ -10,6 +10,9 @@ class File(models.Model):
     is_folder = models.BooleanField(default=False)  # Is this file a folder
     size = models.BigIntegerField()  # Size of the file in bytes
     parent = models.ForeignKey("File", on_delete=models.SET_NULL, null=True)
+    is_trash = models.BooleanField(default=False)
+    date_of_creation = models.DateTimeField(auto_now_add=True)
+    trash_date = models.DateTimeField(null=True, default=None)
 
     class Meta:
         indexes = [

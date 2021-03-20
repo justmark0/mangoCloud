@@ -262,7 +262,8 @@ def get_all_files_view(request: HttpRequest):
                     pr = 'root'
                 else:
                     pr = el.parent.file_id
-                files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr})
+                files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr,
+                              "date_of_creation": el.date_of_creation, "size": el.size})
 
             return JsonResponse(files, safe=False)
         return json_error("Wrong credentials")
