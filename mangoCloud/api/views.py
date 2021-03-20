@@ -10,6 +10,8 @@ from django.db.models import Sum
 
 from .services import *
 
+LIMIT_MEMORY = int(1e8)
+
 
 @csrf_exempt
 def get_file(request: HttpRequest):
@@ -32,7 +34,7 @@ def get_file(request: HttpRequest):
             if file_entry.is_folder is True:
                 return json_error("It is folder")
 
-            if file_entry.user_id != user:
+            if not has_access(user, file_entry.file_id):
                 return json_error("You have no rights to see this file")
 
             archive = py7zr.SevenZipFile(file, mode='r')
@@ -41,7 +43,7 @@ def get_file(request: HttpRequest):
 
             start_new_thread(delete_file_after_5s, (file[:-3:],))
 
-            return FileResponse(open(str(file[:-3:]+"/"+file_entry.file_id), 'rb'), filename=file_entry.file_name)
+            return FileResponse(open(str(file[:-3:] + "/" + file_entry.file_id), 'rb'), filename=file_entry.file_name)
         return json_error("Error. Check if file name (less 512) and token is less than 256 symbols and not none")
     return json_error("API supprots only GET and POST methods")
 
@@ -67,13 +69,20 @@ def upload_file(request: HttpRequest):
             file_entry.size = new_size
             file_entry.save()
 
+            sum = File.objects.filter(user_id=user).aggregate(Sum('size'))
+            if int(sum['size__sum']) > int(LIMIT_MEMORY):  # If more than 100 mb then cannot upload
+                os.remove(abs_path)
+                file_entry.delete()
+                return json_error("Limit. You cannot upload files in sum more than 100mb")
+
             start_new_thread(archive_file, (file_entry.file_id,))
 
             response = {"file_id": file_entry.file_id}
+
             return JsonResponse(response, safe=False)
 
         return json_error("Request is invalid. Check that you sent file, token (less than 256), file_name (less "
-                            "than 512) and not none")
+                          "than 512) and not none")
     return json_error("API supports only GET and POST methods")
 
 
@@ -143,6 +152,8 @@ def folder_content_view(request: HttpRequest):
             files = []
             buff_list = list(File.objects.filter(parent=fold))
             for el in buff_list:
+                if el.is_trash is True:
+                    continue
                 files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name})
 
             return JsonResponse(files, safe=False)
@@ -245,6 +256,8 @@ def get_all_files_view(request: HttpRequest):
             files = []
             buff_list = list(File.objects.filter(user_id=user))
             for el in buff_list:
+                if el.is_trash is True:
+                    continue
                 if el.parent is None:
                     pr = 'root'
                 else:
@@ -274,18 +287,19 @@ def delete_view(request: HttpRequest):
                 return json_error("You do not have accsess to this file/folder")
 
             file2del = get_or_none(File, file_id=data['file_id'])
+            if file2del is None:
+                return json_error("There is no such file")
+            if file2del.is_trash is True:
+                path = absolute_path_from_filename(file2del.file_id + ".7z")
+                os.remove(path)
+                return JsonResponse({"message": "Deleted"})
 
-            if file2del.is_folder is True:
-                files2delete = File.objects.filter(parent=file2del)
-                for el in files2delete:
-                    path = absolute_path_from_filename(el.file_id + ".7z")
-                    os.remove(path)
-                    el.delete()
-            File.objects.filter(id=file2del.id).delete()
+            File.objects.filter(id=file2del.id).update(is_trash=True)
 
-            return JsonResponse({"message": "successful"})
+            return JsonResponse({"message": "Moved to trash"})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
+
 
 # rename
 @csrf_exempt
@@ -331,3 +345,52 @@ def get_space_view(request: HttpRequest):
             return JsonResponse({"size": str(sum['size__sum'])})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
+
+
+def main_validator(request, get_req, file_id=False, file_name=False, username=False, password=False, can_edit=False,
+                   fold_id=False, new_name=False):
+    if request.method == "GET":
+        return json_error(f"Use post method and specify {get_req}")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+        except json.decoder.JSONDecodeError:
+            return json_error("Couldn't decode your json request")
+        if not validate_json(data, token=True, file_id=file_id, file_name=file_name, username=username,
+                             password=password, can_edit=can_edit, fold_id=fold_id, new_name=new_name):
+            return json_error("Wrong credentials")
+        return None
+    return json_error("Site supprots only GET and POST methods")
+
+
+@csrf_exempt
+def clear_trash_bin_view(request: HttpRequest):
+    result_of_valid = main_validator(request=request, get_req="token")
+    if result_of_valid is not None:
+        return result_of_valid
+    data = json.loads(request.body.decode())
+    user = validate_user(data)
+    if str(type(user)) == "<class 'str'>":
+        return json_error(str(user))
+
+    File.objects.filter(in_trash=True, user_id=user).delete()
+    return JsonResponse({"message": "successfuly cleaned trash"})
+
+
+@csrf_exempt
+def clear_trash_bin_view(request: HttpRequest):
+    result_of_valid = main_validator(request=request, get_req="token")
+    if result_of_valid is not None:
+        return result_of_valid
+    data = json.loads(request.body.decode())
+    user = validate_user(data)
+    if str(type(user)) == "<class 'str'>":
+        return json_error(str(user))
+
+    files2delete = list(File.objects.filter(is_trash=True, user_id=user))
+    for el in files2delete:
+        path = absolute_path_from_filename(el.file_id + ".7z")
+        os.remove(path)
+        el.delete()
+
+    return JsonResponse({"message": "successfuly cleaned trash"})

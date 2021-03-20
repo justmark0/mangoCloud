@@ -97,6 +97,8 @@ def json_error(message):
 
 
 def has_access(user, file_id):
+    if user.is_superuser is True:
+        return True
     file = get_or_none(File, file_id=file_id)
     has = get_or_none(Access, file_id=file, share_uid=user)
     if has is None:

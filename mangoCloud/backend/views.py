@@ -1,12 +1,44 @@
 from django.shortcuts import render, HttpResponse, redirect
 # from django.contrib.auth import authenticate, login
 # from .forms import UserForm, LoginForm
+from django.http import JsonResponse
+from api.models import File
+from api.services import has_access
+from .models import User
 from django.http import HttpRequest
 # from .models import User
 
 
+def json_error(message):
+    return JsonResponse({"Error": message}, safe=False)
+
+
+def json_message(message):
+    return JsonResponse({"message": message}, safe=False)
+
+
+def get_or_none(classname, **kwargs):
+    try:
+        return classname.objects.get(**kwargs)
+    except classname.DoesNotExist:
+        return None
+
+
 def index_view(request: HttpRequest):
     return render(request, 'index.html')
+
+
+def file_view(request: HttpRequest, file_id):
+    if request.method == "GET":
+        if not 'token' in request.COOKIES.keys():
+            return json_error("Error. Update token")
+        user = get_or_none(User, token=request.COOKIES['token'])
+        if user is None:
+            return json_error("Error. Update token")
+        if not has_access(user, file_id):
+            return json_error("You have no rights to see this file")
+
+        # Send preview
 
 #
 #
