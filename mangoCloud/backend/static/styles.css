@@ -1,3 +1,12 @@
+@supports(scroll-snap-type: both mandatory) {
+    .no-support {
+        display: none;
+    }
+}
+::-webkit-scrollbar { /* chrome based */
+    width: 0px; /* ÑˆÐ¸Ñ€Ð¸Ð½Ð° scrollbar'a */
+    background: transparent; /* Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ð¾ */
+}
 body {
     padding: 0;
     margin: 0;
@@ -254,4 +263,94 @@ img.search{
     top: 10px;
     /* background: red; */
     display: inline-block;
+}
+.view_img{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: red;
+}
+
+#show_img{
+    top: 10px;
+    max-height: 80%;
+    max-width: 80%;
+    left: 10%;
+    position: relative;
+}
+.file_bar{
+    height: 60px;
+    background: gray;
+    width: 100%;
+    position: relative;
+}
+.show_window{
+    display: none;
+}
+div#show_window_file_name{
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    top: 15px;
+    font-size: 18px;
+    color: white;
+}
+.show_nav_icons{
+    height: 35px;
+    margin: 10px;
+}
+.main_window {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+.space_use{
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    right: 20px;
+    bottom: 10%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.column_use{
+    max-height: 100%;
+    display: inline-block;
+    width: 250px;
+}
+.item_use{
+    margin: 3px;
+    height: 40px;
+    background: #fff;
+    border-radius: 8px;
+    opacity: 100%;
+    box-shadow: 0 0 6px rgb(0 0 0 / 60%);
+}
+.column_list{
+    position: absolute;
+    width: 250px;
+}
+.item_icon{
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    margin-top: 7px;
+    margin-left: 7px;
+}
+.item_name{
+    position: absolute;
+    margin-top: 7px;
+    margin-left: 35px;
+    font-size: 14px;
+    width: 180px;
+    overflow: hidden;
+}
+.item_folder_open{
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    margin-top: 7px;
+    margin-left: 220px;
+    font-size: 14px;
+    overflow: hidden;
 }
