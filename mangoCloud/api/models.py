@@ -9,6 +9,7 @@ class File(models.Model):
     file_name = models.CharField(max_length=512)  # Name of the file how user call it
     is_folder = models.BooleanField(default=False)  # Is this file a folder
     size = models.BigIntegerField()  # Size of the file in bytes
+    parent = models.ForeignKey("File", on_delete=models.SET_NULL, null=True)
 
     class Meta:
         indexes = [
@@ -29,15 +30,4 @@ class Access(models.Model):
             models.Index(fields=['file_id']),
             models.Index(fields=['owner_id']),
             models.Index(fields=['share_uid']),
-        ]
-
-
-class Folder(models.Model):
-    folder = models.ForeignKey("File", on_delete=models.CASCADE, related_name="folder")
-    file = models.ForeignKey("File", on_delete=models.CASCADE, related_name="file")
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['folder']),
-            models.Index(fields=['file']),
         ]

@@ -1,13 +1,13 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import HttpResponse, render
-from django.http import HttpRequest, FileResponse, JsonResponse
+import json
+from _thread import *
+
 from backend.models import User  # It is right import
 from django.contrib.auth import authenticate
-from .models import File, Folder, Access
+from django.http import HttpRequest, FileResponse
+from django.shortcuts import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
 from .services import *
-from _thread import *
-from .forms import *
-import json
 
 
 @csrf_exempt
@@ -18,7 +18,7 @@ def get_file(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, token=True, file_id=True):
             user = get_or_none(User, token=data['token'])  # Validating token
             if user is None:
@@ -37,6 +37,7 @@ def get_file(request: HttpRequest):
             archive = py7zr.SevenZipFile(file, mode='r')
             archive.extractall(path=file[:-3:])
             archive.close()
+
 
             start_new_thread(delete_file_after_5s, (file[:-3:],))
 
@@ -81,7 +82,7 @@ def get_token(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, username=True, password=True):
             user = authenticate(request, username=data['username'], password=data['password'])
             if user is None:
@@ -101,7 +102,7 @@ def reg_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, username=True, password=True):
             user_exist = get_or_none(User, username=data['username'])
             if user_exist is not None:
@@ -123,7 +124,7 @@ def folder_content_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, token=True, file_id=True):
             user = get_or_none(User, token=data['token'])  # Validating token
             if user is None:
@@ -137,9 +138,9 @@ def folder_content_view(request: HttpRequest):
                 return json_error("This is file, not folder")
 
             files = []
-            buff_list = list(Folder.objects.filter(folder=fold))
+            buff_list = list(File.objects.filter(parent=fold))
             for el in buff_list:
-                files.append({"file_id": el.file.file_id, "is_folder": el.file.is_folder})
+                files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name})
 
             return JsonResponse(files, safe=False)
         return json_error("Wrong credentials")
@@ -154,7 +155,7 @@ def grand_accsess_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, token=True, file_id=True, username=True, can_edit=True):
             user = validate_user(data, check_owner=True)
             if str(type(user)) == "<class 'str'>":
@@ -179,14 +180,14 @@ def create_dir(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, token=True, file_name=True):
             user = validate_user(data)
             if str(type(user)) == "<class 'str'>":
                 return json_error(str(user))
 
             fold_file = File.objects.create(file_id=get_unique_id(), user_id=user, is_folder=True,
-                                            file_name=data['file_name'])
+                                            file_name=data['file_name'], size=0)
 
             return JsonResponse({"file_id": fold_file.file_id})
         return json_error("Wrong credentials")
@@ -196,12 +197,12 @@ def create_dir(request: HttpRequest):
 @csrf_exempt
 def move_file_to_dir(request: HttpRequest):
     if request.method == "GET":
-        return json_error("Use post method and specify your token, file_id ( and password")
+        return json_error("Use post method and specify your token, file_id ans fold_id")
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return json_error("Couldn't decode your json")
+            return json_error("Couldn't decode your json request")
         if validate_json(data, token=True, file_id=True, fold_id=True):
             user = validate_user(data, check_owner=True, check_owner_folder=True)
             if str(type(user)) == "<class 'str'>":
@@ -217,12 +218,36 @@ def move_file_to_dir(request: HttpRequest):
             if file_entry is None:
                 return json_error("There os no such file")
 
-            old_folder = get_or_none(Folder, file=file_entry)
-            if old_folder is not None:
-                old_folder.delete()
-
-            Folder(folder=folder_entry, file=file_entry).save()
+            File.objects.filter(id=file_entry.id).update(parent=folder_entry)
 
             return JsonResponse({"message": "success"})
+        return json_error("Wrong credentials")
+    return json_error("Site supprots only GET and POST methods")
+
+
+@csrf_exempt
+def get_all_files_view(request: HttpRequest):
+    if request.method == "GET":
+        return json_error("Use post method and specify your token")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+        except json.decoder.JSONDecodeError:
+            return json_error("Couldn't decode your json request")
+        if validate_json(data, token=True):
+            user = validate_user(data)
+            if str(type(user)) == "<class 'str'>":
+                return json_error(str(user))
+
+            files = []
+            buff_list = list(File.objects.filter(user_id=user))
+            for el in buff_list:
+                if el.parent is None:
+                    pr = 'root'
+                else:
+                    pr = el.parent.file_id
+                files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr})
+
+            return JsonResponse(files, safe=False)
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
