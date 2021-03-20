@@ -182,9 +182,76 @@ img.search{
     color: #fff;
 }
 .login_button{
+    display: inline-block;
     margin-right: 40px;
     margin-top: 20px;
     width: 100px;
     font-size: 16px;
     font-weight: 700;
+}
+.login_errors{
+    color: red;
+    font-weight: 700;
+    padding: 10px 0px 0px 30px;
+}
+.change_sing_up_in{
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 25px;
+    font-size: 14px;
+}
+.login_button:hover {
+    background: linear-gradient(-45deg, #FFD86E, #E57474);
+    opacity: 0.9;
+}
+.add_button{
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: 50px;
+    bottom: 50px;
+    background: #fff;
+    box-shadow: 0 0 7px rgb(0 0 0 / 60%);
+    border-radius: 40%;
+}
+.add_button:hover{
+    box-shadow: 0 0 10px rgb(0 0 0 / 60%);
+}
+.plus_img{
+    margin: 7.5px;
+    width: 35px;
+    height: 35px;
+}
+.error_space{
+    /* background: red; */
+    position: absolute;
+    width: 300px;
+    /* height: 200px; */
+    right: 0;
+}
+.error_msg{
+    background: white;
+    margin: 10px;
+    left: 0;
+    right: 0;
+    /* height: 50px; */
+    border-radius: 14px;
+    box-shadow: 0 0 6px rgb(0 0 0 / 60%);
+    position: relative;
+}
+.error_msg_text{
+    padding: 15px;
+    font-size: 14px;
+    color: red;
+    margin-right: 30px;
+    display: inline-block;
+}
+.error_msg_close{
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    right: 10px;
+    top: 10px;
+    /* background: red; */
+    display: inline-block;
 }

@@ -17,24 +17,24 @@ def get_file(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, token=True, file_id=True):
             user = get_or_none(User, token=data['token'])  # Validating token
             if user is None:
-                return HttpResponse("Error. Update token")
+                return json_error("Error. Update token")
 
             file = absolute_path_from_filename(data['file_id'])
             file_entry = get_or_none(File, file_id=data['file_id'])
             if file_entry is None or file is None:
-                return HttpResponse("There is no such file")
+                return json_error("There is no such file")
             if file_entry.is_folder is True:
-                return HttpResponse("It is folder")
+                return json_error("It is folder")
 
             if file_entry.user_id != user:
-                return HttpResponse("You have no rights to see this file")
+                return json_error("You have no rights to see this file")
 
             return FileResponse(open(file, 'rb'), filename=file_entry.file_name)
-        return HttpResponse("Error. Check if file name (less 512) and token is less than 256 symbols and not none")
+        return json_error("Error. Check if file name (less 512) and token is less than 256 symbols and not none")
     return HttpResponse("API supprots only GET and POST methods")
 
 
@@ -51,8 +51,8 @@ def upload_file(request: HttpRequest):
             file_entry = File.objects.create(file_id=get_unique_id(), file_name=request.POST['file_name'], user_id=user)
             save_file_in_folder(name=file_entry.file_id, file=request.FILES['file'])
             response = {"file_id": file_entry.file_id}
-            return HttpResponse(json.dumps(response))
-        return HttpResponse("Request is invalid. Check that you sent file, token (less than 256), file_name (less "
+            return JsonResponse(response, safe=False)
+        return json_error("Request is invalid. Check that you sent file, token (less than 256), file_name (less "
                             "than 512) and not none")
     return HttpResponse("API supports only GET and POST methods")
 
@@ -65,7 +65,7 @@ def get_token(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, username=True, password=True):
             user = authenticate(request, username=data['username'], password=data['password'])
             if user is None:
@@ -85,7 +85,7 @@ def reg_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, username=True, password=True):
             user_exist = get_or_none(User, username=data['username'])
             if user_exist is not None:
@@ -95,7 +95,7 @@ def reg_view(request: HttpRequest):
             instance.set_password(data['password'])
             instance.save()
             return JsonResponse({"token": instance.token}, safe=False)
-        return HttpResponse("Username (less that 150) and password (less than 50) should be not none")
+        return json_error("Username (less that 150) and password (less than 50) should be not none")
     return HttpResponse("Site supprots only GET and POST methods")
 
 
@@ -107,18 +107,18 @@ def folder_content_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, token=True, file_id=True):
             user = get_or_none(User, token=data['token'])  # Validating token
             if user is None:
-                return HttpResponse("Error. Update token")
+                return json_error("Error. Update token")
 
             if not has_access(user=user, file_id=data['file_id']):
-                return HttpResponse("You do not have accsess to this file/folder")
+                return json_error("You do not have accsess to this file/folder")
 
             fold = get_or_none(File, file_id=data['file_id'])
             if fold.is_folder is False:
-                return HttpResponse("This is file, not folder")
+                return json_error("This is file, not folder")
 
             files = []
             buff_list = list(Folder.objects.filter(folder=fold))
@@ -138,7 +138,7 @@ def grand_accsess_view(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, token=True, file_id=True, username=True, can_edit=True):
             user = validate_user(data, check_owner=True)
             if str(type(user)) == "<class 'str'>":
@@ -163,7 +163,7 @@ def create_dir(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, token=True, file_name=True):
             user = validate_user(data)
             if str(type(user)) == "<class 'str'>":
@@ -185,7 +185,7 @@ def move_file_to_dir(request: HttpRequest):
         try:
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
-            return HttpResponse("Couldn't decode your json")
+            return json_error("Couldn't decode your json")
         if validate_json(data, token=True, file_id=True, fold_id=True):
             user = validate_user(data, check_owner=True, check_owner_folder=True)
             if str(type(user)) == "<class 'str'>":
@@ -193,13 +193,13 @@ def move_file_to_dir(request: HttpRequest):
 
             folder_entry = get_or_none(File, file_id=data['fold_id'])
             if folder_entry is None:
-                return HttpResponse("There os no such folder")
+                return json_error("There os no such folder")
             if folder_entry.is_folder is False:
-                return HttpResponse(f"{data['fold_id']} is not a folder")
+                return json_error(f"{data['fold_id']} is not a folder")
 
             file_entry = get_or_none(File, file_id=data['file_id'])
             if file_entry is None:
-                return HttpResponse("There os no such file")
+                return json_error("There os no such file")
 
             old_folder = get_or_none(Folder, file=file_entry)
             if old_folder is not None:

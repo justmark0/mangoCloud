@@ -1,61 +1,121 @@
-var string_login = '';
-var string_registr = '';
-var login = false;
-var registr = false;
+var LOGIN_OPERATION = false;
+var REGISTR_OPERATION = false;
+var USER_LOGIN = 'StiveMan1';
+var USER_PASSWORD = 'StiveMan1';
+var USER_TOKEN = '96b011a7a4fe24b67bbd4d258ce028d08f5b6ea4903fe7127bcf8e38f1699857';
 
-function show_Login_pop_up(){
-    login = true;
+function show_login_pop_up(){
+    LOGIN_OPERATION = true;
+    REGISTR_OPERATION = false;
     $(".login_button").text("Login");
     $(".login_title").text("Login");
+    $(".change_sing_up_in").text("Register new account");
     $(".filter").css('display','block');
     $(".popup").css('display','block');
 }
 function show_register_pop_up(){
-    login = true;
-    registr = true;
-    $(".login_title").text("Register");
+    LOGIN_OPERATION = false;
+    REGISTR_OPERATION = true;
     $(".login_button").text("Register");
+    $(".login_title").text("Register");
+    $(".change_sing_up_in").text("You all ready have account");
     $(".filter").css('display','block');
     $(".popup").css('display','block');
 }
-// print( JSON.stringify({"username":"makr7","password":"1234"}))
-data = {"token": "fcf0646ddf586305e28651799a5b3d15becee3ef73e478812fe8ea6f447c52c8", "file_id": "72c76d1721fedd3bfc26b2ce3bf28be26c5dc6585a9919d2f1ae04fbd4170fb6"};
-var myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
-myHeaders.append("Referrer-Policy", "same-origin");
-// $.ajax({
-//     type: "POST",
-//     url: "http://58bd2bb77759.ngrok.io/api/reg",
-//     headers: myHeaders,
-//     data: JSON.stringify(data),
-//     processData: false,
-//     dataType: "json",
-//     success: function (msg) {
-//         print(msg);
-//     },
-// });
-$.ajax({
+function close_pop_up(){
+    LOGIN_OPERATION = false;
+    REGISTR_OPERATION = false;
+    $(".filter").css('display','none');
+    $(".popup").css('display','none');
+    
+    print(USER_TOKEN);
+}
 
-    type : "POST",
-    mode    : "no-cors",
-    url    : "http://127.0.0.1:8000/api/reg",
-    dataType: "json",
-    headers : {"Access-Control-Allow-Origin" : "*"},
-    contentType: "application/json; charset=utf-8",
-    data   : JSON.stringify({"username":"makr100skdjksdnk000","password":"1234"}),
-    success: function(data){
-        print(data);
-    },
+async function registertion(login, password){
+    var error = false;
+    var data = await $.ajax({
 
-    error: function(error_data){
-        console.log("error")
-        console.log(error_data);
+        type : "POST",
+        mode    : "no-cors",
+        url    : "/api/reg",
+        dataType: "json",
+        headers : {"Access-Control-Allow-Origin" : "*"},
+        contentType: "application/json; charset=utf-8",
+        data   : JSON.stringify({"username":login,"password":password}),
+        success: function(data){
+            return data;
+        },
+
+        error: function(error_data){
+            $(".login_errors").text("Error with connection");
+            error = true;
+        }
+    });
+    if('Error' in data){
+        $(".login_errors").text('This user already exist');
+        error = true;
+    }
+    USER_TOKEN = data['token'];
+    USER_LOGIN = login;
+    USER_PASSWORD = password;
+    if(!error){
+        close_pop_up();
+    }
+}
+async function authorization(login, password){
+    var error = false;
+    var data = await $.ajax({
+
+        type : "POST",
+        mode    : "no-cors",
+        url    : "/api/get_token",
+        dataType: "json",
+        headers : {"Access-Control-Allow-Origin" : "*"},
+        contentType: "application/json; charset=utf-8",
+        data   : JSON.stringify({"username":login,"password":password}),
+        success: function(data){
+            return data;
+        },
+
+        error: function(error_data){
+            $(".login_errors").text("Error with connection");
+            error = true;
+        }
+    });
+    if('Error' in data){
+        $(".login_errors").text('This user already exist');
+        error = true;
+    }
+    USER_TOKEN = data['token'];
+    USER_LOGIN = login;
+    USER_PASSWORD = password;
+    if(!error){
+        close_pop_up();
+    }
+}
+// registertion('sdijsoijd','sdhisjhdihsi');
+// show_register_pop_up();
+
+$(".login_button").click(function() {
+    var login = $(".login_input#username").val();
+    var password = $(".login_input#password").val();
+    if(REGISTR_OPERATION){
+        if(login != null && password != null && login.length > 8 && password.length > 8){
+            registertion(login,password);
+        }else{
+            $(".login_errors").text('Your username and password are not secure enough');
+            $(".login_input#username").text('');
+            $(".login_input#password").text('');
+        }
+    }
+    if(LOGIN_OPERATION){
+        authorization(login,password);
     }
 });
-// show_Login_pop_up();
-// show_Login_pop_up();
-// $('.login_button').click(function() {
-//     if(active != null){
-//     }
-//     Activate(this);
-// })
+$(".change_sing_up_in").click(function(){
+    if(LOGIN_OPERATION){
+        show_register_pop_up();
+    }else{
+        show_login_pop_up();
+    }
+})
