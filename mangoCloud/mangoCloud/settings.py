@@ -5,6 +5,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 FILES_FOLDER = BASE_DIR.parent / 'files'
+if not FILES_FOLDER.exists():
+    os.mkdir(str(FILES_FOLDER))
 load_dotenv()
 
 # Quick-start development settings - unsuitable for production
@@ -15,6 +17,7 @@ SECRET_KEY = os.getenv("SECRET_KEY") or 'secretkey9324762130*&^_(@#^$!_@@#+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("MODE") == 'DEBUG'
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

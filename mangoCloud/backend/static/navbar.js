@@ -1,12 +1,11 @@
 var print = console.log;
-print('he')
 var active = null;
 $('.nav_button').click(function() {
     if(active != null){
         DisActivate();
     }
     Activate(this);
-})
+});
 
 function Activate(element){
     $(element).children("div.nav_button_text").css('color','#E57474');
