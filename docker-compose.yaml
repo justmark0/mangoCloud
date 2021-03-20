@@ -3,12 +3,12 @@ version: "3.9"
 services:
   web:
     build: .
+    command: python manage.py collectstatic
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./files:/mangoCloud/files/
-      - ./mangoCloud/mangoCloud/db.sqlite3:/mangoCloud/mangoCloud/db.sqlite3
+      - ./files:/files
+      - ./mangoCloud/db.sqlite3:/mangoCloud/db.sqlite3
     ports:
       - "8000:8000"
 volumes:
   files:
-  db:
