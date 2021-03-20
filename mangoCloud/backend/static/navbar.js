@@ -13,7 +13,9 @@ function Activate(element){
     $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src",active_s_src.replace(".svg","_active.svg"));
     active = $(element);
     print($(element).attr("id"));
-
+    if($(element).attr("id") == 'Files'){
+        Files();
+    }
 }
 function DisActivate(){
     active.children("div.nav_button_text").css('color','#929292');
@@ -37,4 +39,8 @@ $('.nav_button').mouseover(function () {
     }
 });
 
-Activate($('.nav_button#Main'));
+Activate($('.nav_button#Files'));
+
+function Files(){
+    
+}

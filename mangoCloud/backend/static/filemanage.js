@@ -15,28 +15,30 @@ fileSelect.addEventListener("click", function (e) {
 }, false);
 
 function handleFiles(files){
-    print(files);
-    var data = {
-        "token":USER_TOKEN,
-        "file_name":files[0].name
-    };
-    print(data['file_name']);
-    var formData = new FormData();
-    formData.append('file',files[0]);
-    formData.append('token',USER_TOKEN);
-    formData.append('file_name',files[0].name);
+    for(var i=0;i<files.length;i++){
+        var data = {
+            "token":USER_TOKEN,
+            "file_name":files[i].name
+        };
+        var formData = new FormData();
+        formData.append('file',files[i]);
+        formData.append('token',USER_TOKEN);
+        formData.append('file_name',files[i].name);
 
-    $.ajax({
-        url : '/api/upload_file',
-        type : 'POST',
-        data : formData,
-        processData: false,  // tell jQuery not to process the data
-        contentType: false,  // tell jQuery not to set contentType
-        success : function(data) {
-            console.log(data);
-            alert(data);
-        }
-    });
+        $.ajax({
+            url : '/api/upload_file',
+            type : 'POST',
+            data : formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
+            success : function(data) {
+                console.log(data);
+            },
+            error:function(error_data){
+                popupErrorMessage(error_data);
+            }
+        });
+    }
 }
 async function loadignFiles(folder_id = "1"){
     if(USER_TOKEN == ''){
@@ -51,57 +53,94 @@ async function loadignFiles(folder_id = "1"){
         method: 'POST',
         headers: myHeaders,
         body: raw,
-        redirect: 'follow'
+        redirect: 'follow',
+        responseType: 'arraybuffer'
     };
     var filename = '';
-    var error_text = await fetch('api/get_file',requestOptions)
-    .then(resp => {
-        // print(await ( resp.json()));
-        try {
-            filename = resp.headers
-              .get("content-disposition")
-              .split('"')[1];
-              print(filename)
-            return resp.blob()
-        } catch (error) {
-            return resp.json()
-        }
-    })
-    .then(blob => {
+    var response = await fetch('api/get_file',requestOptions)
+    try {
+        filename = response.headers
+          .get("content-disposition")
+          .split('"')[1];
+          print(filename)
+        return [await response.blob(), filename]
+    } catch (error) {
         try{
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            // the filename you want
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            alert('your file has downloaded!');
-        } catch (error) {
-            return blob['Error']
+            return [(await response.json())['Error'], ''];
+        }catch(error){
+            return ["Unexpected Error" , ''];
         }
-    })
-    .catch(() => 'Un expected error');
-    if(error_text != null){
-        popupErrorMessage(error_text);
     }
 }
-function popupErrorMessage(message){
-    const error_msg = document.createElement('div');
-    const error_msg_text = document.createElement('div');
-    const error_msg_close = document.createElement('img');
-    error_msg.className = "error_msg";
-    error_msg_text.className = "error_msg_text";
-    error_msg_text.innerHTML = message;
-    error_msg_close.className = "error_msg_close";
-    error_msg_close.src = "../static/img/cancel.svg";
-    document.getElementById('error_space').appendChild(error_msg);
-    error_msg.appendChild(error_msg_text);
-    error_msg.appendChild(error_msg_close);
+function saveFile(blob){
+    try{
+        const url = window.URL.createObjectURL(blob[0]);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        // the filename you want
+        a.download = blob[1];
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        print(error)
+        popupErrorMessage(blob[0]);
+    }
 }
-$(".error_msg_close").click(function(){
-    print($(this).parent());
-})
-loadignFiles();
+
+// loadignFiles();
+async function makeDirectory(dir_name = 'root'){
+    if(USER_TOKEN == ''){
+        popupErrorMessage("To do this operation you need to be login in system");
+        return;
+    }
+    $.ajax({
+
+        type : "POST",
+        mode    : "no-cors",
+        url    : "/api/mkdir",
+        dataType: "json",
+        headers : {"Access-Control-Allow-Origin" : "*"},
+        contentType: "application/json; charset=utf-8",
+        data   : JSON.stringify({"token":USER_TOKEN,"file_name":dir_name}),
+        success: function(data){
+            return data;
+        },
+
+        error: function(error_data){
+            popupErrorMessage(error_data);
+        }
+    });
+}
+function closeImg(){
+    $(".show_window").css('display','none');
+    $(".filter").css('display','none');
+    $(".filter").click(()=>{});
+}
+async function showImg(blob){
+    
+    try{
+        const url = await window.URL.createObjectURL(blob[0]);
+        $("#show_img").attr('src',url);
+        $(".filter").click(()=>closeImg());
+        $("#show_window_file_name").text(blob[1]);
+        $("#show_nav_close").click(() => closeImg());
+        $("#show_nav_download").click(() => saveFile(blob));
+    }catch(error){
+        print(error);
+    }
+}
+async function openFile(file_id = 'e0a89c8845e2f6417e9f209291f7368b579021b0f16de7a47a50b25ce0d23346'){
+    $(".show_window").css('display','block');
+    $(".filter").css('display','block');
+    file_data = await loadignFiles(file_id);
+    // saveFile(file_data);
+    // print(file_data[0]);
+    showImg(file_data);
+}
+
+// openFile();
+
+var folder_src = "../static/img/tabler-icon-folder.svg";
+var folder_open_src = "../static/img/tabler-icon-chevron-right.svg";
