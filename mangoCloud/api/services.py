@@ -5,7 +5,10 @@ from django.conf import settings
 from random import randint
 from hashlib import sha256
 from .models import File
+from time import sleep
+import py7zr
 import json
+import os
 
 
 def get_or_none(classname, **kwargs):
@@ -23,8 +26,8 @@ def absolute_path_from_filename(name: str):
 
 
 def get_unique_id(classname=File):
+    a = str(randint(0, int(1e9))) + str(randint(0, int(1e9)))
     while True:
-        a = str(randint(0, int(1e9))) + str(randint(0, int(1e9)))
         h = sha256(a.encode()).hexdigest()
         if classname == File:
             entry = get_or_none(classname, file_id=h)
@@ -34,12 +37,23 @@ def get_unique_id(classname=File):
             return
         if entry is None:
             return h
+        a = str(int(a) + 1)
 
 
-def save_file_in_folder(name: str, file):
-    with open(str(settings.FILES_FOLDER / name), 'wb+') as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)
+def archive_file(file_id: str):
+    abs_path = str(settings.FILES_FOLDER / file_id)
+    with py7zr.SevenZipFile(abs_path + '.7z', 'w') as z:  # password='secret'
+        # For security can add password to archive as user password
+        z.write(abs_path, arcname=file_id)
+    os.remove(abs_path)
+    new_size = os.path.getsize(str(abs_path + '.7z'))
+    File.objects.get(file_id=file_id).update(size=new_size)
+
+
+def delete_file_after_5s(abs_path):
+    sleep(5)
+    os.remove(abs_path+"/"+abs_path.split("/")[-1])
+    os.rmdir(abs_path)
 
 
 def field_json_is_valid(data, field, max_length=256):

@@ -8,10 +8,13 @@ class File(models.Model):
     # extended by adding table of sharing and storing share_id
     file_name = models.CharField(max_length=512)  # Name of the file how user call it
     is_folder = models.BooleanField(default=False)  # Is this file a folder
+    size = models.BigIntegerField()  # Size of the file in bytes
 
     class Meta:
         indexes = [
             models.Index(fields=['file_id']),
+            models.Index(fields=['user_id']),
+            models.Index(fields=['file_name']),
         ]
 
 
@@ -24,6 +27,8 @@ class Access(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['file_id']),
+            models.Index(fields=['owner_id']),
+            models.Index(fields=['share_uid']),
         ]
 
 
