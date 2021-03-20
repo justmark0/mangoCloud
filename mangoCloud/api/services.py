@@ -47,7 +47,7 @@ def archive_file(file_id: str):
         z.write(abs_path, arcname=file_id)
     os.remove(abs_path)
     new_size = os.path.getsize(str(abs_path + '.7z'))
-    File.objects.get(file_id=file_id).update(size=new_size)
+    File.objects.filter(file_id=file_id).update(size=new_size)
 
 
 def delete_file_after_5s(abs_path):
@@ -64,7 +64,7 @@ def field_json_is_valid(data, field, max_length=256):
 
 
 def validate_json(data, token=False, file_id=False, file_name=False, username=False, password=False, can_edit=False,
-                  fold_id=False):
+                  fold_id=False, new_name=False):
     if token is True:
         if not field_json_is_valid(data, 'token', 256):
             return False
@@ -85,6 +85,9 @@ def validate_json(data, token=False, file_id=False, file_name=False, username=Fa
             return False
     if fold_id is True:
         if not field_json_is_valid(data, 'fold_id', 256):
+            return False
+    if new_name is True:
+        if not field_json_is_valid(data, 'new_name', 512):
             return False
     return True
 

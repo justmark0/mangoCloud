@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 from django.http import HttpRequest, FileResponse
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Sum
 
 from .services import *
 
@@ -38,7 +39,6 @@ def get_file(request: HttpRequest):
             archive.extractall(path=file[:-3:])
             archive.close()
 
-
             start_new_thread(delete_file_after_5s, (file[:-3:],))
 
             return FileResponse(open(str(file[:-3:]+"/"+file_entry.file_id), 'rb'), filename=file_entry.file_name)
@@ -63,6 +63,9 @@ def upload_file(request: HttpRequest):
             with open(abs_path, 'wb+') as destination:
                 for chunk in request.FILES['file'].chunks():
                     destination.write(chunk)
+            new_size = os.path.getsize(abs_path)
+            file_entry.size = new_size
+            file_entry.save()
 
             start_new_thread(archive_file, (file_entry.file_id,))
 
@@ -249,5 +252,82 @@ def get_all_files_view(request: HttpRequest):
                 files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr})
 
             return JsonResponse(files, safe=False)
+        return json_error("Wrong credentials")
+    return json_error("Site supprots only GET and POST methods")
+
+
+@csrf_exempt
+def delete_view(request: HttpRequest):
+    if request.method == "GET":
+        return json_error("Use post method and specify your token and file_id")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+        except json.decoder.JSONDecodeError:
+            return json_error("Couldn't decode your json request")
+        if validate_json(data, token=True, file_id=True):
+            user = validate_user(data)
+            if str(type(user)) == "<class 'str'>":
+                return json_error(str(user))
+
+            if not has_access(user=user, file_id=data['file_id']):
+                return json_error("You do not have accsess to this file/folder")
+
+            file2del = get_or_none(File, file_id=data['file_id'])
+
+            if file2del.is_folder is True:
+                files2delete = File.objects.filter(parent=file2del)
+                for el in files2delete:
+                    path = absolute_path_from_filename(el.file_id + ".7z")
+                    os.remove(path)
+                    el.delete()
+            File.objects.filter(id=file2del.id).delete()
+
+            return JsonResponse({"message": "successful"})
+        return json_error("Wrong credentials")
+    return json_error("Site supprots only GET and POST methods")
+
+# rename
+@csrf_exempt
+def rename_view(request: HttpRequest):
+    if request.method == "GET":
+        return json_error("Use post method and specify your token, file_id and new_name")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+        except json.decoder.JSONDecodeError:
+            return json_error("Couldn't decode your json request")
+        if validate_json(data, token=True, file_id=True, new_name=True):
+            user = validate_user(data)
+            if str(type(user)) == "<class 'str'>":
+                return json_error(str(user))
+            if not has_access(user=user, file_id=data['file_id']):
+                return json_error("You do not have accsess to this file/folder")
+
+            File.objects.filter(file_id=data['file_id']).update(file_name=data['new_name'])
+
+            return JsonResponse({"message": "successful"})
+        return json_error("Wrong credentials")
+    return json_error("Site supprots only GET and POST methods")
+
+
+# get space
+@csrf_exempt
+def get_space_view(request: HttpRequest):
+    if request.method == "GET":
+        return json_error("Use post method and specify your token")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+        except json.decoder.JSONDecodeError:
+            return json_error("Couldn't decode your json request")
+        if validate_json(data, token=True):
+            user = validate_user(data)
+            if str(type(user)) == "<class 'str'>":
+                return json_error(str(user))
+
+            sum = File.objects.filter(user_id=user).aggregate(Sum('size'))
+
+            return JsonResponse({"size": str(sum['size__sum'])})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
