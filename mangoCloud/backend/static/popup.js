@@ -1,7 +1,7 @@
 var LOGIN_OPERATION = false;
 var USER_LOGIN = 'StiveMan1';
 var USER_PASSWORD = 'StiveMan1';
-var USER_TOKEN = '0b7e165d46a07d22ac08b8154519ca3c5c85900870ece28b5dd1b9ad8ce375f5';
+var USER_TOKEN = 'a433f9ca09e0e913dca2d68b5043b324a3caf229afd969c41829f8407d61f894';
 
 function show_login_pop_up(){
     LOGIN_OPERATION = true;
@@ -9,13 +9,13 @@ function show_login_pop_up(){
     $(".login_title").text("Login");
     $(".filter").css('display','block');
     $(".popup").css('display','block');
+    $(".login_input#username").val("");
+    $(".login_input#password").val("");
 }
 function close_pop_up(){
     LOGIN_OPERATION = false;
     $(".filter").css('display','none');
     $(".popup").css('display','none');
-    
-    print(USER_TOKEN);
 }
 
 async function authorization(login, password){
@@ -45,11 +45,13 @@ async function authorization(login, password){
     USER_TOKEN = data['token'];
     USER_LOGIN = login;
     USER_PASSWORD = password;
+    save_cookie();
     if(!error){
+        $(".Login_name").text(USER_LOGIN);
         close_pop_up();
     }
 }
-// show_login_pop_up();
+
 
 $(".login_button").click(function() {
     var login = $(".login_input#username").val();
@@ -58,3 +60,30 @@ $(".login_button").click(function() {
         authorization(login,password);
     }
 });
+
+function save_cookie(){
+    document.cookie = 'user=' +encodeURIComponent(USER_TOKEN)+";";
+    document.cookie =  'login=' + encodeURIComponent(USER_LOGIN)+";";
+    // print(USER_LOGIN)
+    // print(document.cookie)
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+function get_cookie(){
+    USER_TOKEN = getCookie('user');
+    USER_LOGIN = getCookie('login');
+    if(USER_TOKEN != ''){
+        $(".Login_name").text(USER_LOGIN);
+        close_pop_up();
+    }else{
+        show_login_pop_up();
+    }
+}
