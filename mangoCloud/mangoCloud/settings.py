@@ -27,7 +27,6 @@ AUTH_USER_MODEL = 'backend.User'
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -35,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'backend',
+    'django.contrib.admin',
 ]
 
 MIDDLEWARE = [

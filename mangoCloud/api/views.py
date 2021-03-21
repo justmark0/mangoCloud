@@ -170,7 +170,7 @@ def grand_accsess_view(request: HttpRequest):
             data = json.loads(request.body.decode())
         except json.decoder.JSONDecodeError:
             return json_error("Couldn't decode your json request")
-        if validate_json(data, token=True, file_id=True, username=True, can_edit=True):
+        if validate_json(data, token=True, file_id=True, username=True):  # can_edit=True
             user = validate_user(data, check_owner=True)
             if str(type(user)) == "<class 'str'>":
                 return json_error(str(user))
@@ -179,8 +179,8 @@ def grand_accsess_view(request: HttpRequest):
             if share_uid is None:
                 return json_error("There is no such user")
 
-            can_edit = data['can_edit'] == 'True'
-            Access(file_id=data['file_id'], owner_id=user, share_uid=share_uid, can_edit=can_edit).save()
+            # can_edit = data['can_edit'] == 'True'
+            Access(file_id=data['file_id'], owner_id=user, share_uid=share_uid, can_edit=True).save()
             return JsonResponse({"message": "successful"})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
@@ -395,3 +395,25 @@ def clear_trash_bin_view(request: HttpRequest):
         el.delete()
 
     return JsonResponse({"message": "successfuly cleaned trash"})
+
+
+@csrf_exempt
+def get_all_in_trash(request: HttpRequest):
+    result_of_valid = main_validator(request=request, get_req="token")
+    if result_of_valid is not None:
+        return result_of_valid
+    data = json.loads(request.body.decode())
+    user = validate_user(data)
+    if str(type(user)) == "<class 'str'>":
+        return json_error(str(user))
+
+    files = []
+    buff_list = list(File.objects.filter(user_id=user, is_trash=True))
+    for el in buff_list:
+        if el.parent is None:
+            pr = 'root'
+        else:
+            pr = el.parent.file_id
+        files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr,
+                      "date_of_creation": el.date_of_creation, "size": el.size})
+    return JsonResponse(files, safe=False)

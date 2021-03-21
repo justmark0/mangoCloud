@@ -16,6 +16,7 @@ urlpatterns = [
     path('delete', delete_view),
     path('rename', rename_view),
     path('using_space', get_space_view),
+    path('get_all_in_trash', get_all_in_trash)
 ]
 
 start_new_thread(clean_trash, ())
