@@ -14,6 +14,8 @@ function Activate(element){
     $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src",active_s_src.replace(".svg","_active.svg"));
     active = $(element);
     Files_or_List = true;
+    updateProcessBar();
+    updateProcessBar();
     if($(element).attr("id")  in functional){
         functional[$(element).attr("id")]();
     }
@@ -64,6 +66,7 @@ async function Files(){
     }
     closeColumnMac(0);
     createColumnMac();
+    
 }
 function createElamenMac(name = '', file_id = '', is_folder = false,level = 0){
     const item_use = document.createElement('div');

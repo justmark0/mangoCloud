@@ -271,6 +271,33 @@ async function deleteFile(file_id){
     }
     popupErrorMessage(data['message'],1);
 }
+async function using_space(){
+    const data = await $.ajax({
+
+        type : "POST",
+        mode    : "no-cors",
+        url    : "/api/using_space",
+        dataType: "json",
+        headers : {"Access-Control-Allow-Origin" : "*"},
+        contentType: "application/json; charset=utf-8",
+        data   : JSON.stringify({"token":USER_TOKEN}),
+        success: function(data){
+            return data;
+        },
+
+        error: function(error_data){
+            popupErrorMessage(error_data);
+        }
+    }); 
+    if('Error' in data){
+        popupErrorMessage(data['Error']);
+        return null;
+    }
+    return data;
+}
+async function updateProcessBar(){
+    $('.presentage').text(calcualteSize(await using_space())+'/100MB');
+}
 // var folder_src = "../static/img/tabler-icon-folder.svg";
 // var folder_open_src = "../static/img/tabler-icon-chevron-right.svg";
 // makedir("LOLLL");

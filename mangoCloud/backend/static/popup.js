@@ -70,6 +70,7 @@ async function authorization(login, password){
     if(!error){
         $(".Login_name").text(USER_LOGIN);
         close_pop_up();
+        Activate($('.nav_button#Main'));
     }
 }
 

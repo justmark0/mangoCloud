@@ -1,4 +1,4 @@
-// Activate($('.nav_button#Files'));
+Activate($('.nav_button#Main'));
 // show_login_pop_up();
 // createColumn();
 get_cookie()

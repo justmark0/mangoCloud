@@ -87,7 +87,10 @@ function workRightMenu(ev){
     if('delete_m' == this.id){
         deleteFile(FILE_ID_OPERATION);
         if(Files_or_List){
-            showList();
+            var type = SORT_TYPE
+            ListView()
+            
+            ListSorted(type);
         }
         FILE_ID_OPERATION = '';
         RIGHT_MENU.classList.add('off');

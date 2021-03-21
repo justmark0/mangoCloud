@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="53" height="53" viewBox="0 0 53 53">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#ffd86e"/>
+      <stop offset="1" stop-color="#e57474"/>
+    </linearGradient>
+  </defs>
+  <path id="Объединение_1" data-name="Объединение 1" d="M26,53a2,2,0,0,1-2-2V28H2a2,2,0,0,1-2-2V25a2,2,0,0,1,2-2H24V2a2,2,0,0,1,2-2h1a2,2,0,0,1,2,2V23H51a2,2,0,0,1,2,2v1a2,2,0,0,1-2,2H29V51a2,2,0,0,1-2,2Z" fill="url(#linear-gradient)"/>
+</svg>
