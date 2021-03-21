@@ -1,7 +1,10 @@
 var SORTING_ARRAY = []; // element firstpart - value , secound - data
 var SORTING_ARRAY2 = [];
 var SORT_TYPE = '';
-
+function time_sleep(ms) {
+    ms *= 1000;
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 function compare(a,b){
     if(SORT_TYPE == 'DATE'){
         for(var i=0;i<a['date_of_creation'].length;i++){
@@ -82,20 +85,22 @@ function addMenuListeners(){
     document.getElementById('delete_m').addEventListener('click', workRightMenu);
 }
 
-function workRightMenu(ev){
+async function workRightMenu(ev){
     print(this.id);
     if('delete_m' == this.id){
         deleteFile(FILE_ID_OPERATION);
-        if(Files_or_List){
-            var type = SORT_TYPE
-            ListView()
-            
-            ListSorted(type);
-        }
         FILE_ID_OPERATION = '';
         RIGHT_MENU.classList.add('off');
         RIGHT_MENU.style.top = '-200%';
         RIGHT_MENU.style.left = '-200%';
+        await time_sleep(0.2)
+        if(NOW_ACTIVE == "Main"){
+            var type = SORT_TYPE
+            ListView(type);
+        }else if(NOW_ACTIVE == 'Trash'){
+            var type = SORT_TYPE
+            Trash(type);
+        }
     }
 }
 RIGHT_MENU = document.querySelector('.menu');

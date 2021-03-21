@@ -1,6 +1,5 @@
 var print = console.log;
-var active = null;
-var Files_or_List = true;
+var NOW_ACTIVE = '';
 $('.nav_button').click(function() {
     if(active != null){
         DisActivate();
@@ -13,10 +12,10 @@ function Activate(element){
     var active_s_src = $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src").replace("_over.svg",".svg").replace("_active.svg",".svg");
     $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src",active_s_src.replace(".svg","_active.svg"));
     active = $(element);
-    Files_or_List = true;
     updateProcessBar();
     if($(element).attr("id")  in functional){
         functional[$(element).attr("id")]();
+        NOW_ACTIVE = $(element).attr("id");
     }
 }
 function DisActivate(){
@@ -49,7 +48,6 @@ var HEARAHY = {};
 var LEVELS = [];
 
 async function Files(){
-    Files_or_List = false;
     $('#rename_m').css('display','none');
     $('#share_m').css('display','none');
     $('#access_m').css('display','none');
@@ -171,7 +169,7 @@ function ListViewElment(element){
     // list_elament.addEventListener('contextmenu', showmenu);
     return list_elament;
 }
-async function ListView(){
+async function ListView(type = ''){
     SORT_TYPE = '';
     $('#rename_m').css('display','block');
     $('#share_m').css('display','block');
@@ -186,7 +184,11 @@ async function ListView(){
         data[arc]['type'] = findType(data[arc]['name']);
         SORTING_ARRAY.push(data[arc]);
     }
-    showList();
+    if(type == ''){
+        showList();
+    }else{
+        ListSorted(type)
+    }
 }
 var TYPE_ORIENTATED = 0
 function ListSorted(Type = ''){
@@ -278,7 +280,7 @@ function showList(){
     }
 }
 
-async function Trash(){
+async function Trash(type = ''){
     $('#rename_m').css('display','none');
     $('#share_m').css('display','none');
     $('#access_m').css('display','none');
@@ -293,7 +295,11 @@ async function Trash(){
         data[arc]['type'] = findType(data[arc]['name']);
         SORTING_ARRAY.push(data[arc]);
     }
-    showList();
+    if(type == ''){
+        showList();
+    }else{
+        ListSorted(type)
+    }
 }
 
 function Exit(){

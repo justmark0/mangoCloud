@@ -6,7 +6,7 @@ $('.nav_button').click(function() {
     }
     Activate(this);
 });
-
+var NOW_ACTIVE =
 function Activate(element){
     $(element).children("div.nav_button_text").css('color','#E57474');
     var active_s_src = $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src").replace("_over.svg",".svg").replace("_active.svg",".svg");
@@ -17,6 +17,7 @@ function Activate(element){
     }
     if($(element).attr("id")  in functional){
         functional[$(element).attr("id")]();
+        NOW_ACTIVE = $(element).attr("id");
     }
 }
 function DisActivate(){
