@@ -5,6 +5,10 @@ function time_sleep(ms) {
     ms *= 1000;
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+function time_time(){
+    print(new Date().toString())
+    return parseFloat((new Date().getTime()))/1000;
+}
 function compare(a,b){
     if(SORT_TYPE == 'DATE'){
         for(var i=0;i<a['date_of_creation'].length;i++){
