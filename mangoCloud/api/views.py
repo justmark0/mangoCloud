@@ -295,7 +295,7 @@ def delete_view(request: HttpRequest):
                 os.remove(path)
                 return JsonResponse({"message": "Deleted"})
 
-            File.objects.filter(id=file2del.id).update(is_trash=True)
+            File.objects.filter(id=file2del.id).update(is_trash=True, trash_date=datetime.datetime.now())
 
             return JsonResponse({"message": "Moved to trash"})
         return json_error("Wrong credentials")

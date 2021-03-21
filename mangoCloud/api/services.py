@@ -1,6 +1,8 @@
 from backend.models import User  # It is right import
 from django.http import JsonResponse
+from django.conf import settings
 from .models import File, Access
+import datetime
 from django.conf import settings
 from random import randint
 from hashlib import sha256
@@ -124,3 +126,16 @@ def validate_user(data, check_accsess=False, check_owner=False, check_owner_fold
             return "No such fold or you don't have acsess"
 
     return user
+
+
+def clean_trash():
+    while True:
+        sleep(5)
+        files = list(File.objects.filter(is_trash=True))
+        for el in files:
+            if el.trash_date is None:
+                continue
+            now = datetime.datetime.now()
+            if (now.replace(tzinfo=None) - el.trash_date.replace(tzinfo=None)).total_seconds() > settings.TRASH_CLEAN_EVERY:
+                os.remove(str(settings.FILES_FOLDER / el.file_id) + ".7z")
+                el.delete()

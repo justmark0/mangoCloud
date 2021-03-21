@@ -17,6 +17,9 @@ SECRET_KEY = os.getenv("SECRET_KEY") or 'secretkey9324762130*&^_(@#^$!_@@#+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("MODE") == 'DEBUG'
+DEBUG = True
+
+TRASH_CLEAN_EVERY = 300  # in seconds
 
 ALLOWED_HOSTS = ['*']
 
@@ -122,5 +125,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_ROOT = 'static/'
-STATIC_URL = '/mangoCloud/static/'
+STATIC_URL = '/static/'

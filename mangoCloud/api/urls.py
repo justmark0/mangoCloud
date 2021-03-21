@@ -1,3 +1,5 @@
+from _thread import start_new_thread
+from .services import clean_trash
 from django.urls import path
 from .views import *
 
@@ -15,3 +17,5 @@ urlpatterns = [
     path('rename', rename_view),
     path('using_space', get_space_view),
 ]
+
+start_new_thread(clean_trash, ())
