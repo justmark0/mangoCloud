@@ -1,7 +1,8 @@
-Activate($('.nav_button#Main'));
+
 // show_login_pop_up();
 // createColumn();
 get_cookie()
+Activate($('.nav_button#Main'));
 // 939090828e7986ac707ffda84d78e4ed48a5fd7112e0077a27318007e7cc8467
 // 8e694f1b6e800e5003816e507b4e1a61ba51eb3c08b6de52784094c0b62151cf
 

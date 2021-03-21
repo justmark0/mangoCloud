@@ -15,7 +15,6 @@ function Activate(element){
     active = $(element);
     Files_or_List = true;
     updateProcessBar();
-    updateProcessBar();
     if($(element).attr("id")  in functional){
         functional[$(element).attr("id")]();
     }

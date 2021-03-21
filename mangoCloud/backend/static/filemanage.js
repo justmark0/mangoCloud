@@ -296,7 +296,13 @@ async function using_space(){
     return data;
 }
 async function updateProcessBar(){
-    $('.presentage').text(calcualteSize(await using_space())+'/100MB');
+    if(USER_TOKEN == ''){
+        return;
+    }
+    var lol = await using_space();
+    if(lol != null){
+        $('.presentage').text(calcualteSize(lol['size'])+'/100MB');
+    }
 }
 // var folder_src = "../static/img/tabler-icon-folder.svg";
 // var folder_open_src = "../static/img/tabler-icon-chevron-right.svg";
