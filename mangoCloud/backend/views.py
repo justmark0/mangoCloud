@@ -1,11 +1,13 @@
 from django.shortcuts import render, HttpResponse, redirect
 # from django.contrib.auth import authenticate, login
 # from .forms import UserForm, LoginForm
-from django.http import JsonResponse
+from django.http import HttpRequest, FileResponse, JsonResponse
 from api.models import File
-from api.services import has_access
+from api.services import has_access, delete_file_after_5s, absolute_path_from_filename
+from _thread import start_new_thread
 from .models import User
 from django.http import HttpRequest
+import py7zr
 # from .models import User
 
 
@@ -37,8 +39,17 @@ def file_view(request: HttpRequest, file_id):
             return json_error("Error. Update token")
         if not has_access(user, file_id):
             return json_error("You have no rights to see this file")
+        file_entry = get_or_none(File, file_id=file_id)
+        if file_entry is None:
+            return json_error("There is no such file")
 
-        # Send preview
+        file = absolute_path_from_filename(file_id + ".7z")
+        archive = py7zr.SevenZipFile(file, mode='r')
+        archive.extractall(path=file[:-3:])
+        archive.close()
+        start_new_thread(delete_file_after_5s, (file[:-3:],))
+
+        return FileResponse(open(str(file[:-3:] + "/" + file_entry.file_id), 'rb'), filename=file_entry.file_name)
 
 #
 #

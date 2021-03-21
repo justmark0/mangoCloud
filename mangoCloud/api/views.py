@@ -180,8 +180,7 @@ def grand_accsess_view(request: HttpRequest):
                 return json_error("There is no such user")
 
             # can_edit = data['can_edit'] == 'True'
-            file = get_or_none(File, file_id=data['file_id'])
-            Access(file_id=file, owner_id=user, share_uid=share_uid, can_edit=True).save()
+            Access(file_id=data['file_id'], owner_id=user, share_uid=share_uid, can_edit=True).save()
             return JsonResponse({"message": "successful"})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")
@@ -375,20 +374,6 @@ def clear_trash_bin_view(request: HttpRequest):
     if str(type(user)) == "<class 'str'>":
         return json_error(str(user))
 
-    File.objects.filter(in_trash=True, user_id=user).delete()
-    return JsonResponse({"message": "successfuly cleaned trash"})
-
-
-@csrf_exempt
-def clear_trash_bin_view(request: HttpRequest):
-    result_of_valid = main_validator(request=request, get_req="token")
-    if result_of_valid is not None:
-        return result_of_valid
-    data = json.loads(request.body.decode())
-    user = validate_user(data)
-    if str(type(user)) == "<class 'str'>":
-        return json_error(str(user))
-
     files2delete = list(File.objects.filter(is_trash=True, user_id=user))
     for el in files2delete:
         path = absolute_path_from_filename(el.file_id + ".7z")
@@ -417,4 +402,48 @@ def get_all_in_trash(request: HttpRequest):
             pr = el.parent.file_id
         files.append({"file_id": el.file_id, "is_folder": el.is_folder, "name": el.file_name, "parent": pr,
                       "date_of_creation": el.date_of_creation, "size": el.size})
+    return JsonResponse(files, safe=False)
+
+
+@csrf_exempt
+def get_all_users_view(request: HttpRequest):
+    result_of_valid = main_validator(request=request, get_req="token")
+    if result_of_valid is not None:
+        return result_of_valid
+    data = json.loads(request.body.decode())
+    user = validate_user(data)
+    if str(type(user)) == "<class 'str'>":
+        return json_error(str(user))
+
+    if user.is_superuser is False:
+        return json_error("You are not admin. So not allowed to see this page")
+
+    users = []
+    buff_list = list(User.objects.all())
+    for el in buff_list:
+        users.append({"username": el.username})
+    return JsonResponse(users, safe=False)
+
+
+@csrf_exempt
+def get_all_files_of_user_view(request: HttpRequest):
+    result_of_valid = main_validator(request=request, get_req="token", username=True)
+    if result_of_valid is not None:
+        return result_of_valid
+    data = json.loads(request.body.decode())
+    user = validate_user(data)
+    if str(type(user)) == "<class 'str'>":
+        return json_error(str(user))
+
+    if user.is_superuser is False:
+        return json_error("You are not admin. So not allowed to see this page")
+
+    user_to_see = get_or_none(User, username=data['username'])
+    if user_to_see is None:
+        return json_error("No such user")
+
+    files = []
+    buff_list = list(File.objects.filter(user_id=user_to_see))
+    for el in buff_list:
+        files.append({"file_name": el.file_name})
     return JsonResponse(files, safe=False)
