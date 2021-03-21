@@ -293,6 +293,7 @@ def delete_view(request: HttpRequest):
             if file2del.is_trash is True:
                 path = absolute_path_from_filename(file2del.file_id + ".7z")
                 os.remove(path)
+                file2del.delete()
                 return JsonResponse({"message": "Deleted"})
 
             File.objects.filter(id=file2del.id).update(is_trash=True, trash_date=datetime.datetime.now())
