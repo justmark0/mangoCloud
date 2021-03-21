@@ -1,5 +1,6 @@
 var print = console.log;
 var active = null;
+var Files_or_List = true;
 $('.nav_button').click(function() {
     if(active != null){
         DisActivate();
@@ -12,9 +13,7 @@ function Activate(element){
     var active_s_src = $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src").replace("_over.svg",".svg").replace("_active.svg",".svg");
     $(element).children("div.nav_button_img").children("img.nav_button_img").attr("src",active_s_src.replace(".svg","_active.svg"));
     active = $(element);
-    if($(element).attr("id") == 'Main'){
-        ListView();
-    }
+    Files_or_List = true;
     if($(element).attr("id")  in functional){
         functional[$(element).attr("id")]();
     }
@@ -49,7 +48,12 @@ var HEARAHY = {};
 var LEVELS = [];
 
 async function Files(){
-    HEARAHY = {};
+    Files_or_List = false;
+    $('#rename_m').css('display','none');
+    $('#share_m').css('display','none');
+    $('#access_m').css('display','none');
+    $('#downloud_m').css('display','none');
+    HEARAHY = {};document.getElementById('space_use').innerHTML = '';
 
     var data = await get_all_files();
     for(var arc in data){
@@ -64,6 +68,7 @@ async function Files(){
 function createElamenMac(name = '', file_id = '', is_folder = false,level = 0){
     const item_use = document.createElement('div');
     item_use.className = "item_use";
+    item_use.id = file_id;
     const item_name = document.createElement('div');
     item_name.className = "item_name";
     const img1 = document.createElement('img');
@@ -81,6 +86,11 @@ function createElamenMac(name = '', file_id = '', is_folder = false,level = 0){
             closeColumnMac(level+1);
             createColumnMac(file_id,level+1);
         }
+    }
+    if (item_use.addEventListener) {
+        item_use.addEventListener('contextmenu', showmenu, false);
+    } else {
+        item_use.attachEvent('oncontextmenu', showmenu);
     }
     return item_use;
 }
@@ -100,12 +110,16 @@ async function createColumnMac(fold_id = 'root',level = 0){
     }
 }
 function closeColumnMac(level){
-    while(level < LEVELS.length){
-        print(LEVELS[level]);
-        document.getElementById(LEVELS[level]).remove()
-
-        level ++;
+    print(level)
+    print(LEVELS)
+    while(LEVELS.length > level){
+        print(LEVELS[LEVELS.length-1]);
+        try{
+        document.getElementById(LEVELS[LEVELS.length-1]).remove();
+        }catch(e){};
+        LEVELS.splice(LEVELS.length-1,1);
     }
+    print(LEVELS)
 }
 function calcualteSize(bites){
     var res = '';
@@ -142,14 +156,25 @@ function ListViewElment(element){
     list_elament.appendChild(list_elament_date);
     list_elament.appendChild(list_elament_type);
     list_elament.appendChild(list_elament_size);
+    list_elament.id = element['file_id'];
     list_elament.onclick = function(){
         // print(element)
         openFile(element['file_id'])
     }
+    if (list_elament.addEventListener) {
+        list_elament.addEventListener('contextmenu', showmenu, false);
+    } else {
+        list_elament.attachEvent('oncontextmenu', showmenu);
+    }
+    // list_elament.addEventListener('contextmenu', showmenu);
     return list_elament;
 }
 async function ListView(){
     SORT_TYPE = '';
+    $('#rename_m').css('display','block');
+    $('#share_m').css('display','block');
+    $('#access_m').css('display','block');
+    $('#downloud_m').css('display','block');
     SORTING_ARRAY = [];
     var data = await get_all_files();
     for(arc in data){
@@ -161,45 +186,78 @@ async function ListView(){
     }
     showList();
 }
+var TYPE_ORIENTATED = 0
 function ListSorted(Type = ''){
     if(Type == ''){
         ListView();
         return;
     }
     if(SORT_TYPE == Type){
+        TYPE_ORIENTATED = !TYPE_ORIENTATED;
         SORTING_ARRAY = SORTING_ARRAY.reverse();
     }else{
+        TYPE_ORIENTATED = true;
         SORT_TYPE = Type;
-        merge_spite(0,SORTING_ARRAY.length-1);
+        merge_spite(0,SORTING_ARRAY.length);
     }
     showList();
 }
 
 function showList(){
+    const icon = document.createElement('img');
+    icon.className = 'list_menu_item_icon';
+    const icon2 = document.createElement('div');
+    icon2.className = 'list_menu_item_icon';
+    if(TYPE_ORIENTATED){
+        icon.src = '../static/img/tabler-icon-caret-up.svg';
+    }else{
+        icon.src = '../static/img/tabler-icon-caret-down.svg';
+    }
+
     document.getElementById('space_use').innerHTML = '';
     const list_elament = document.createElement('div');
     list_elament.className = "list_elament";
     const list_elament_file_name = document.createElement('div');
     list_elament_file_name.className = "list_elament_file_name";
-    list_elament_file_name.innerHTML = 'Name';
+    if(SORT_TYPE == 'NAME'){
+        list_elament_file_name.appendChild(icon);
+    }else{
+        list_elament_file_name.appendChild(icon2);
+    }
+    list_elament_file_name.innerHTML += 'Name';
     list_elament_file_name.onclick = function(){
         ListSorted('NAME');
     }
     const list_elament_date = document.createElement('div');
     list_elament_date.className = "list_elament_date";
-    list_elament_date.innerHTML = 'Date';
+    if(SORT_TYPE == 'DATE'){
+        list_elament_date.appendChild(icon);
+    }else{
+        list_elament_date.appendChild(icon2);
+    }
+    list_elament_date.innerHTML += 'Date';
     list_elament_date.onclick = function(){
         ListSorted('DATE');
     }
     const list_elament_type = document.createElement('div');
     list_elament_type.className = "list_elament_type";
-    list_elament_type.innerHTML = 'Type';
+    if(SORT_TYPE == 'TYPE'){
+        list_elament_type.appendChild(icon);
+    }else{
+        list_elament_type.appendChild(icon2);
+    }
+    list_elament_type.innerHTML += 'Type';
     list_elament_type.onclick = function(){
         ListSorted('TYPE');
     }
     const list_elament_size = document.createElement('div');
     list_elament_size.className = "list_elament_size";
-    list_elament_size.innerHTML = 'Size';
+    if(SORT_TYPE == 'SIZE'){
+        list_elament_size.appendChild(icon);
+    }else{
+        list_elament_size.appendChild(icon2);
+    }
+    list_elament_size.innerHTML += 'Size';
     list_elament_size.onclick = function(){
         ListSorted('SIZE');
     }
@@ -208,12 +266,33 @@ function showList(){
     list_elament.appendChild(list_elament_type);
     list_elament.appendChild(list_elament_size);
     document.getElementById('space_use').appendChild(list_elament);
+
+    const srcoll_blabla = document.createElement('div');
+    srcoll_blabla.className = "srcoll_blabla";
+    srcoll_blabla.id = 'srcoll_blabla';
+    document.getElementById('space_use').appendChild(srcoll_blabla);
     for(var arc in SORTING_ARRAY){
-        document.getElementById('space_use').appendChild(ListViewElment(SORTING_ARRAY[arc]));
+        document.getElementById('srcoll_blabla').appendChild(ListViewElment(SORTING_ARRAY[arc]));
     }
 }
 
-
+async function Trash(){
+    $('#rename_m').css('display','none');
+    $('#share_m').css('display','none');
+    $('#access_m').css('display','none');
+    $('#downloud_m').css('display','block');
+    SORT_TYPE = '';
+    SORTING_ARRAY = [];
+    var data = await get_all_in_trash();
+    for(arc in data){
+        if(data[arc]['is_folder'] == true){
+            continue;
+        }
+        data[arc]['type'] = findType(data[arc]['name']);
+        SORTING_ARRAY.push(data[arc]);
+    }
+    showList();
+}
 
 function Exit(){
     HEARAHY = {};
@@ -227,8 +306,10 @@ function Exit(){
     save_cookie();
 }
 
-
 var functional = {
     'Exit':Exit,
-    'Files':ListView,
+    'Main':ListView,
+    'Trash':Trash,
+    'Album':Files,
 };
+// tabler-icon-caret-down.svg

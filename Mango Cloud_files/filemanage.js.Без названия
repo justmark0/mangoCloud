@@ -41,7 +41,6 @@ async function handleFiles(files){
             return;
         }
     }
-    popupErrorMessage('Success',true);
 }
 async function loadignFiles(folder_id = "1"){
     if(USER_TOKEN == ''){
@@ -90,6 +89,7 @@ function saveFile(blob){
     }
 }
 
+// loadignFiles();
 async function makeDirectory(dir_name = 'root'){
     if(USER_TOKEN == ''){
         popupErrorMessage("To do this operation you need to be login in system");
@@ -116,8 +116,7 @@ async function makeDirectory(dir_name = 'root'){
 function closeImg(){
     $(".show_window").css('display','none');
     $(".filter").css('display','none');
-    $("#show_img").attr('src','');
-    $("#filter").click(()=>{});
+    $(".filter").click(()=>{});
 }
 async function showImg(blob,file_id){
     
@@ -125,7 +124,7 @@ async function showImg(blob,file_id){
         const url = await window.URL.createObjectURL(blob[0]);
         $("#show_img").attr('src',url);
         print(url)
-        $("#filter").click(()=>closeImg());
+        $(".filter").click(()=>closeImg());
         $("#show_window_file_name").text(blob[1]);
         $("#show_nav_close").click(() => closeImg());
         $("#show_nav_download").click(() => saveFile(blob));
@@ -214,63 +213,10 @@ async function give_accsess(file_id, username){
         popupErrorMessage(data['Error']);
         return null;
     }
-
-    // window.open('/file/'+file_id, '_blank');
-    $('.access_link').css('display','block');
-    $("#link_get").val(window.location.origin+'/file/'+file_id);
-    // popupErrorMessage("Link Created");
+    popupErrorMessage(data['message'],true);
 }
 
 
-async function get_all_in_trash(){
-    const data = await $.ajax({
-
-        type : "POST",
-        mode    : "no-cors",
-        url    : "/api/get_all_in_trash",
-        dataType: "json",
-        headers : {"Access-Control-Allow-Origin" : "*"},
-        contentType: "application/json; charset=utf-8",
-        data   : JSON.stringify({"token":USER_TOKEN}),
-        success: function(data){
-            return data;
-        },
-
-        error: function(error_data){
-            popupErrorMessage(error_data);
-        }
-    }); 
-    if('Error' in data){
-        popupErrorMessage(data['Error']);
-        return null;
-    }
-    return data;
-}
-
-async function deleteFile(file_id){
-    const data = await $.ajax({
-
-        type : "POST",
-        mode    : "no-cors",
-        url    : "/api/delete",
-        dataType: "json",
-        headers : {"Access-Control-Allow-Origin" : "*"},
-        contentType: "application/json; charset=utf-8",
-        data   : JSON.stringify({"token":USER_TOKEN,'file_id':file_id}),
-        success: function(data){
-            return data;
-        },
-
-        error: function(error_data){
-            popupErrorMessage(error_data);
-        }
-    }); 
-    if('Error' in data){
-        popupErrorMessage(data['Error']);
-        return null;
-    }
-    popupErrorMessage(data['message'],1);
-}
 // var folder_src = "../static/img/tabler-icon-folder.svg";
 // var folder_open_src = "../static/img/tabler-icon-chevron-right.svg";
 // makedir("LOLLL");

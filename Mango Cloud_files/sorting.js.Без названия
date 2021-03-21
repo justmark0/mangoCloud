@@ -46,6 +46,7 @@ function compare(a,b){
 }
 function merge(l1,r1,l2,r2){
     var l = l1, x = l1;
+    print(l1,r1,l2,r2)
     while(l1<r1 || l2<r2){
         if(l2 == r2 || (l1 != r1 && compare(SORTING_ARRAY[l1],SORTING_ARRAY[l2]))){
             SORTING_ARRAY2[x] = SORTING_ARRAY[l1];

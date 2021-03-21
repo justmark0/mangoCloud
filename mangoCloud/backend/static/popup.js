@@ -23,17 +23,20 @@ function show_access_pop_up(file_id){
     ADD_ACCESS = true;
     FILE_ID_OPERATION = file_id;
     $(".login_button").text("Add");
-    $(".filter").click(()=>close_pop_up_access);
+    $("#filter").click(()=>close_pop_up_access());
     $(".login_title").text("Add Access");
     $(".filter").css('display','block');
     $(".popup_ac").css('display','block');
     $(".login_input#username_ac").val("");
+    $(".filter").click(()=>close_pop_up_access());
 }
 function close_pop_up_access(){
+    print('lol')
     ADD_ACCESS = false;
     FILE_ID_OPERATION = '';
-    $(".filter").css('display','none');
     $(".popup_ac").css('display','none');
+    $(".access_link").css('display','none');
+    $(".filter").css('display','none');
 
 }
 async function authorization(login, password){
@@ -78,7 +81,7 @@ $(".login_button").click(function() {
         authorization(login,password);
     }else{
         give_accsess(FILE_ID_OPERATION,$(".login_input#username_ac").val())
-        close_pop_up_access();
+        // close_pop_up_access();
     }
 });
 
