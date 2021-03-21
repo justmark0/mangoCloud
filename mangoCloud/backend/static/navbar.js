@@ -98,10 +98,6 @@ async function createColumnMac(fold_id = 'root',level = 0){
     for(arc in HEARAHY[fold_id]){
         column_list.appendChild(createElamenMac(HEARAHY[fold_id][arc]['name'],HEARAHY[fold_id][arc]['file_id'],HEARAHY[fold_id][arc]['is_folder'],level));
     }
-
-
-    // <div class="column_use">
-    // <div class="column_list" id="path"></div>
 }
 function closeColumnMac(level){
     while(level < LEVELS.length){
@@ -111,9 +107,23 @@ function closeColumnMac(level){
         level ++;
     }
 }
-
+function calcualteSize(bites){
+    var res = '';
+    if(bites < 1024){
+        return bites.toString() + "B";
+    }else if(bites < 1048576){
+        return ((bites/1024)>>1).toString() + "KB";
+    }else if(bites < 1073741824){
+        return ((bites/1048576)>>1).toString() + "MB";
+    }
+    return '';
+}
+function findType(name){
+    var x = name.split('.');
+    return x[x.length-1].toUpperCase();
+}
+var OPEN_TYPES = ['JPG', 'PDF', 'JPG'];
 function ListViewElment(element){
-    print(element)
     const list_elament = document.createElement('div');
     list_elament.className = "list_elament";
     const list_elament_file_name = document.createElement('div');
@@ -121,27 +131,85 @@ function ListViewElment(element){
     list_elament_file_name.innerHTML = element['name'];
     const list_elament_date = document.createElement('div');
     list_elament_date.className = "list_elament_date";
-    list_elament_date.innerHTML = element['name'];
+    list_elament_date.innerHTML = element['date_of_creation'];
     const list_elament_type = document.createElement('div');
     list_elament_type.className = "list_elament_type";
-    list_elament_type.innerHTML = element['name'];
+    list_elament_type.innerHTML = element['type'];
     const list_elament_size = document.createElement('div');
     list_elament_size.className = "list_elament_size";
-    list_elament_size.innerHTML = '-';
+    list_elament_size.innerHTML = calcualteSize(element['size']);
     list_elament.appendChild(list_elament_file_name);
     list_elament.appendChild(list_elament_date);
     list_elament.appendChild(list_elament_type);
     list_elament.appendChild(list_elament_size);
+    list_elament.onclick = function(){
+        // print(element)
+        openFile(element['file_id'])
+    }
     return list_elament;
 }
 async function ListView(){
-    
+    SORT_TYPE = '';
+    SORTING_ARRAY = [];
     var data = await get_all_files();
-    for(var arc in data){
+    for(arc in data){
         if(data[arc]['is_folder'] == true){
             continue;
         }
-        document.getElementById('space_use').appendChild(ListViewElment(data[arc]));
+        data[arc]['type'] = findType(data[arc]['name']);
+        SORTING_ARRAY.push(data[arc]);
+    }
+    showList();
+}
+function ListSorted(Type = ''){
+    if(Type == ''){
+        ListView();
+        return;
+    }
+    if(SORT_TYPE == Type){
+        SORTING_ARRAY = SORTING_ARRAY.reverse();
+    }else{
+        SORT_TYPE = Type;
+        merge_spite(0,SORTING_ARRAY.length-1);
+    }
+    showList();
+}
+
+function showList(){
+    document.getElementById('space_use').innerHTML = '';
+    const list_elament = document.createElement('div');
+    list_elament.className = "list_elament";
+    const list_elament_file_name = document.createElement('div');
+    list_elament_file_name.className = "list_elament_file_name";
+    list_elament_file_name.innerHTML = 'Name';
+    list_elament_file_name.onclick = function(){
+        ListSorted('NAME');
+    }
+    const list_elament_date = document.createElement('div');
+    list_elament_date.className = "list_elament_date";
+    list_elament_date.innerHTML = 'Date';
+    list_elament_date.onclick = function(){
+        ListSorted('DATE');
+    }
+    const list_elament_type = document.createElement('div');
+    list_elament_type.className = "list_elament_type";
+    list_elament_type.innerHTML = 'Type';
+    list_elament_type.onclick = function(){
+        ListSorted('TYPE');
+    }
+    const list_elament_size = document.createElement('div');
+    list_elament_size.className = "list_elament_size";
+    list_elament_size.innerHTML = 'Size';
+    list_elament_size.onclick = function(){
+        ListSorted('SIZE');
+    }
+    list_elament.appendChild(list_elament_file_name);
+    list_elament.appendChild(list_elament_date);
+    list_elament.appendChild(list_elament_type);
+    list_elament.appendChild(list_elament_size);
+    document.getElementById('space_use').appendChild(list_elament);
+    for(var arc in SORTING_ARRAY){
+        document.getElementById('space_use').appendChild(ListViewElment(SORTING_ARRAY[arc]));
     }
 }
 
@@ -164,4 +232,3 @@ var functional = {
     'Exit':Exit,
     'Files':ListView,
 };
-

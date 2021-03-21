@@ -14,30 +14,32 @@ fileSelect.addEventListener("click", function (e) {
     e.preventDefault();
 }, false);
 
-function handleFiles(files){
+async function handleFiles(files){
     for(var i=0;i<files.length;i++){
-        var data = {
-            "token":USER_TOKEN,
-            "file_name":files[i].name
-        };
         var formData = new FormData();
         formData.append('file',files[i]);
         formData.append('token',USER_TOKEN);
         formData.append('file_name',files[i].name);
 
-        $.ajax({
+        var res = await $.ajax({
             url : '/api/upload_file',
             type : 'POST',
             data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
+            processData: false,
+            contentType: false,
             success : function(data) {
-                console.log(data);
             },
             error:function(error_data){
                 popupErrorMessage(error_data);
             }
         });
+        if(!res){
+            return;
+        }
+        if('Error' in res){
+            popupErrorMessage(res['Error']);
+            return;
+        }
     }
 }
 async function loadignFiles(folder_id = "1"){
@@ -116,7 +118,7 @@ function closeImg(){
     $(".filter").css('display','none');
     $(".filter").click(()=>{});
 }
-async function showImg(blob){
+async function showImg(blob,file_id){
     
     try{
         const url = await window.URL.createObjectURL(blob[0]);
@@ -126,6 +128,11 @@ async function showImg(blob){
         $("#show_window_file_name").text(blob[1]);
         $("#show_nav_close").click(() => closeImg());
         $("#show_nav_download").click(() => saveFile(blob));
+        $("#show_nac_sheare").click(function(){
+            print('lol');
+            closeImg();
+            show_access_pop_up(file_id);
+        });
         
     }catch(error){
     }
@@ -135,8 +142,7 @@ async function openFile(file_id = '10f872afb93c0f9cad41e6c4fca837b1e8793ebbac586
     $(".filter").css('display','block');
     file_data = await loadignFiles(file_id);
     // saveFile(file_data);
-    print(file_data);
-    showImg(file_data);
+    showImg(file_data,file_id);
 }
 async function get_all_files(){
     const data = await $.ajax({
@@ -185,6 +191,29 @@ async function makedir(file_name){
         return null;
     }
     // print(data);
+}
+async function give_accsess(file_id, username){
+    const data = await $.ajax({
+        type : "POST",
+        mode    : "no-cors",
+        url    : "/api/give_accsess",
+        dataType: "json",
+        headers : {"Access-Control-Allow-Origin" : "*"},
+        contentType: "application/json; charset=utf-8",
+        data   : JSON.stringify({"token":USER_TOKEN, 'file_id': file_id, 'username': username}),
+        success: function(data){
+            return data;
+        },
+
+        error: function(error_data){
+            popupErrorMessage(error_data);
+        }
+    }); 
+    if('Error' in data){
+        popupErrorMessage(data['Error']);
+        return null;
+    }
+    popupErrorMessage(data['message'],true);
 }
 
 

@@ -144,9 +144,10 @@ img.search{
     position: absolute;
     height: 100%;
     width: 100%;
-    background: #777;
-    opacity: 50%;
+    background: rgba(119,119,119,0.5);
+    overflow: overlay;
 }
+.popup_ac,
 .popup{
     display: none;
     position: absolute;
@@ -271,12 +272,20 @@ img.search{
     background: red;
 }
 
-#show_img{
-    top: 10px;
-    max-height: 80%;
-    max-width: 80%;
-    left: 10%;
+.show_img{
+    position: absolute;
+    left: 50%;
+    top: 80px;
+    margin-bottom: 20px;
+}
+.show_img_w{
+    left: -50%;
+    width: 700px;
+    height: 100%;
     position: relative;
+}
+#show_img{
+    width: 100%;
 }
 .file_bar{
     height: 60px;
@@ -372,27 +381,29 @@ div#show_window_file_name{
 .list_elament_date,
 .list_elament_type,
 .list_elament_size{
+    overflow: hidden;
     padding-top: 5px;
     padding-bottom: 5px;
-    padding-left: 7px;
-    border-left-style: solid;
-    border-left-width: 1px;
+    padding-left: 20px;
     display: inline-block;
     position: absolute;
-    background: #fff;
+    color:#444;
+    left:1;
+    right:1;
 }
 .list_elament_date{
-    left: 200px;
+    left: 300px;
 }
 .list_elament_type{
-    left: 400px;
+    left: 500px;
 }
 .list_elament_size{
-    left: 600px;
+    left: 700px;
 }
-.list_elament{
+.list_elament {
+    background: rgba(255,255,255,0.5);
+    color: #444;
     border-style: solid;
     border-width: 1px;
     height: 36px;
-    background: #fff;
 }

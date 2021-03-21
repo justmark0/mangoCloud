@@ -1,4 +1,4 @@
-function popupErrorMessage(message){
+function popupErrorMessage(message,success = false){
     const error_msg = document.createElement('div');
     const error_msg_text = document.createElement('div');
     const error_msg_close = document.createElement('img');
@@ -9,6 +9,9 @@ function popupErrorMessage(message){
     error_msg_close.src = "../static/img/cancel.svg";
     error_msg_close.onclick = function(){
         error_msg.remove()
+    }
+    if(success){
+        error_msg_text.style.color = 'green';
     }
     document.getElementById('error_space').appendChild(error_msg);
     error_msg.appendChild(error_msg_text);

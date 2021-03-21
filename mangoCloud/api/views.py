@@ -180,7 +180,8 @@ def grand_accsess_view(request: HttpRequest):
                 return json_error("There is no such user")
 
             # can_edit = data['can_edit'] == 'True'
-            Access(file_id=data['file_id'], owner_id=user, share_uid=share_uid, can_edit=True).save()
+            file = get_or_none(File, file_id=data['file_id'])
+            Access(file_id=file, owner_id=user, share_uid=share_uid, can_edit=True).save()
             return JsonResponse({"message": "successful"})
         return json_error("Wrong credentials")
     return json_error("Site supprots only GET and POST methods")

@@ -1,4 +1,6 @@
 var LOGIN_OPERATION = false;
+var ADD_ACCESS = false;
+var FILE_ID_OPERATION = '';
 var USER_LOGIN = 'StiveMan1';
 var USER_PASSWORD = 'StiveMan1';
 var USER_TOKEN = 'a433f9ca09e0e913dca2d68b5043b324a3caf229afd969c41829f8407d61f894';
@@ -17,7 +19,23 @@ function close_pop_up(){
     $(".filter").css('display','none');
     $(".popup").css('display','none');
 }
+function show_access_pop_up(file_id){
+    ADD_ACCESS = true;
+    FILE_ID_OPERATION = file_id;
+    $(".login_button").text("Add");
+    $(".filter").click(()=>close_pop_up_access);
+    $(".login_title").text("Add Access");
+    $(".filter").css('display','block');
+    $(".popup_ac").css('display','block');
+    $(".login_input#username_ac").val("");
+}
+function close_pop_up_access(){
+    ADD_ACCESS = false;
+    FILE_ID_OPERATION = '';
+    $(".filter").css('display','none');
+    $(".popup_ac").css('display','none');
 
+}
 async function authorization(login, password){
     var error = false;
     var data = await $.ajax({
@@ -58,12 +76,16 @@ $(".login_button").click(function() {
     var password = $(".login_input#password").val();
     if(LOGIN_OPERATION){
         authorization(login,password);
+    }else{
+        give_accsess(FILE_ID_OPERATION,$(".login_input#username_ac").val())
+        close_pop_up_access();
     }
 });
 
 function save_cookie(){
-    document.cookie = 'user=' +encodeURIComponent(USER_TOKEN)+";";
+    document.cookie = 'token=' +encodeURIComponent(USER_TOKEN)+";";
     document.cookie =  'login=' + encodeURIComponent(USER_LOGIN)+";";
+    document.cookie =  'password=' + encodeURIComponent(USER_PASSWORD)+";";
     // print(USER_LOGIN)
     // print(document.cookie)
 }
@@ -78,11 +100,11 @@ function getCookie(name) {
     return null;
 }
 function get_cookie(){
-    USER_TOKEN = getCookie('user');
+    USER_TOKEN = getCookie('token');
     USER_LOGIN = getCookie('login');
+    USER_PASSWORD = getCookie('password');
     if(USER_TOKEN != ''){
-        $(".Login_name").text(USER_LOGIN);
-        close_pop_up();
+        authorization(USER_LOGIN, USER_PASSWORD);
     }else{
         show_login_pop_up();
     }
