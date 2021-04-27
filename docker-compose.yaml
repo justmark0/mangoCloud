@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   web:
@@ -9,6 +9,6 @@ services:
       - ./files:/files
       - ./mangoCloud/db.sqlite3:/mangoCloud/db.sqlite3
     ports:
-      - "8000:8000"
+      - "80:8000"
 volumes:
   files:
