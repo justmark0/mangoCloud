@@ -10,5 +10,5 @@ pycryptodome==3.10.1
 python-dotenv
 pytz==2021.1
 pyzstd==0.14.3
-sqlparse==0.4.1
+sqlparse==0.4.2
 texttable==1.6.3
